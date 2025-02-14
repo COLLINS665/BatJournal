@@ -1,12 +1,13 @@
 from flask import Flask, request, jsonify
 from pymongo import MongoClient
 import datetime
+import os
 from flask_cors import CORS
 
 app = Flask(__name__)
 CORS(app, supports_credentials=True)
-SECRET_PASSWORD = ""
-MONGO_URI = ""
+SECRET_PASSWORD = os.getenv("SECRET_PASSWORD")
+MONGO_URI = os.getenv("MONGO_URI")
 # Connect to MongoDB
 client = MongoClient(MONGO_URI)  # Change for MongoDB Atlas if needed
 db = client["journal"]
