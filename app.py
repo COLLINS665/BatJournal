@@ -6,9 +6,9 @@ from flask_cors import CORS
 app = Flask(__name__)
 CORS(app, supports_credentials=True)
 SECRET_PASSWORD = ""
-
+MONGO_URI = ""
 # Connect to MongoDB
-client = MongoClient("")  # Change for MongoDB Atlas if needed
+client = MongoClient(MONGO_URI)  # Change for MongoDB Atlas if needed
 db = client["journal"]
 entries_collection = db["entries"]
 
