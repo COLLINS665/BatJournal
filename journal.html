@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <title>Nocturnal Entries</title>
+
+</head>
+<body class="d-flex flex-column justify-content-around align-items-center vh-100 bg-dark" style="font-family: 'Roboto', sans-serif;">
+
+    <h2 class="display-9 fw-bold text-light text-uppercase" >Nocturnal Entries</h2>
+    <button class="btn btn-primary" onclick="showNewEntry()">Echo</button>
+    <button class="btn btn-primary" onclick="showEntries()">View Echoes</button>
+    
+    <div id="new-entry-section" style="display: none;" class="w-50">
+         <textarea id="journalInput" class="form-control form-control-sm mt-1 p-3 rounded-3 shadow-sm border-2" rows="3" placeholder="Echo away, bat..." ></textarea>
+        <button class="btn btn-primary btn-lg m-4" onclick="saveEntry()">SAVE ECHO</button>
+    </div>
+    
+    <div id="entries-container" style="display: none;" class="text-white"></div>
+    
+    
+
+
+    
+
+</body>
+
+<script>
+// To keep things easy and because I am lazy
+// I am going to store all my scripts and stylesheets 
+// In this one file
+// Backend will of course be written separately
+function showNewEntry() {
+    document.getElementById('new-entry-section').style.display = 'block';
+    document.getElementById('entries-container').style.display = 'none';
+}
+
+function showEntries() {
+    document.getElementById('new-entry-section').style.display = 'none';
+    document.getElementById('entries-container').style.display = 'block';
+    fetchEntries();  // Load entries when clicking 'View Entries'
+}
+
+
+async function saveEntry() {
+    const entryText = document.getElementById("journalInput").value;
+    const password = prompt("Enter your password to save this entry:");
+
+    const response = await fetch("http://127.0.0.1:5000/save", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ content: entryText, password:password }),
+        credentials:"include"
+    });
+
+    const result = await response.json();
+
+    alert(result.message || result.error);
+    
+}
+
+async function fetchEntries() {
+    const password = prompt("Enter your password to view entries:");
+
+    const response = await fetch("http://127.0.0.1:5000/entries", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ password: password })
+    });
+
+    const result = await response.json();
+
+    if (response.status !== 200) {
+        alert(result.error || "Failed to fetch entries");
+        return;
+    }
+
+    const entriesContainer = document.getElementById("entries-container");
+    entriesContainer.innerHTML = "";
+
+    result.forEach(entry => {
+        const entryDiv = document.createElement("div");
+        entryDiv.classList.add("journal-entry");
+        entryDiv.innerHTML = `
+            <h3>${entry.date}</h3>
+            <p>${entry.content}</p>
+            <hr>
+        `;
+        entriesContainer.appendChild(entryDiv);
+    });
+}
+
+
+// Call this function when the page loads
+// window.onload = fetchEntries;
+
+
+</script>
+
+</html>
